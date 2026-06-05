@@ -2,7 +2,6 @@ import { useState, useEffect, useRef } from 'react';
 import { 
   Play, 
   Terminal as TerminalIcon, 
-  Settings, 
   RefreshCw, 
   ExternalLink, 
   Layers, 
@@ -13,7 +12,7 @@ import {
   Search,
   BookOpen
 } from 'lucide-react';
-import { Card, CardHeader, CardTitle, CardContent, CardDescription } from './components/ui/card';
+import { Card, CardHeader, CardTitle, CardContent } from './components/ui/card';
 import { Button } from './components/ui/button';
 import { Input } from './components/ui/input';
 
@@ -63,7 +62,6 @@ export default function App() {
   const [isRunning, setIsRunning] = useState(false);
   const [logs, setLogs] = useState<LogMessage[]>([]);
   const [result, setResult] = useState<AgentResult | null>(null);
-  const [showSettings, setShowSettings] = useState(false);
   const [backendStatus, setBackendStatus] = useState<'checking' | 'online' | 'offline'>('checking');
 
   const terminalEndRef = useRef<HTMLDivElement>(null);
@@ -113,7 +111,7 @@ export default function App() {
     setLogs([
       {
         id: 'init',
-        text: `🚀 Initializing SSE connection to ${BACKEND_URL}/api/stream?ticker=${tickerToRun}`,
+        text: `Initializing SSE connection to ${BACKEND_URL}/api/stream?ticker=${tickerToRun}`,
         timestamp: new Date().toLocaleTimeString(),
         type: 'system'
       }
@@ -217,20 +215,20 @@ export default function App() {
     : 0;
 
   return (
-    <div className="min-h-screen bg-darkBg text-gray-100 flex flex-col selection:bg-neonBlue/30 selection:text-white relative overflow-hidden">
+    <div className="min-h-screen bg-darkBg text-gray-100 flex flex-col selection:bg-neonBlue/30 selection:text-white relative overflow-x-hidden">
       
       {/* Background Neon Glow Dots */}
       <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] rounded-full bg-neonBlue/5 blur-[120px] pointer-events-none" />
       <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] rounded-full bg-neonPurple/5 blur-[120px] pointer-events-none" />
 
       {/* Header Bar */}
-      <header className="border-b border-gray-800 bg-darkSurface/60 backdrop-blur-md px-6 py-4 flex items-center justify-between relative z-40 w-full">
+      <header className="border-b border-gray-800 bg-darkSurface/60 backdrop-blur-md px-4 sm:px-6 py-4 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 relative z-40 w-full">
         <div className="flex items-center space-x-3">
-          <div className="p-2.5 bg-gradient-to-tr from-neonBlue to-neonPurple rounded-xl shadow-lg shadow-neonBlue/10 animate-pulse-glow">
+          <div className="p-2.5 bg-gradient-to-tr from-neonBlue to-neonPurple rounded-xl shadow-lg shadow-neonBlue/10 animate-pulse-glow shrink-0">
             <Layers className="w-6 h-6 text-white" />
           </div>
           <div>
-            <h1 className="text-xl font-bold tracking-tight bg-gradient-to-r from-white via-gray-200 to-gray-400 bg-clip-text text-transparent">
+            <h1 className="text-lg sm:text-xl font-bold tracking-tight bg-gradient-to-r from-white via-gray-200 to-gray-400 bg-clip-text text-transparent break-words">
               Multi-Source Financial Sentiment Fusion Engine
             </h1>
             <p className="text-xs text-gray-400 font-mono">Framework-Free ReAct Agent Loop</p>
@@ -238,8 +236,8 @@ export default function App() {
         </div>
 
         {/* Server Status Indicators */}
-        <div className="flex items-center space-x-4">
-          <div className="flex items-center space-x-2 bg-gray-900/60 px-3 py-1.5 rounded-lg border border-gray-800 text-xs">
+        <div className="flex items-center space-x-4 self-stretch md:self-auto justify-end">
+          <div className="flex items-center space-x-2 bg-gray-900/60 px-3 py-1.5 rounded-lg border border-gray-800 text-xs w-full md:w-auto justify-center">
             <span className="text-gray-400">Backend:</span>
             {backendStatus === 'online' && (
               <span className="flex items-center text-emerald-400 font-semibold gap-1.5">
@@ -260,46 +258,14 @@ export default function App() {
               </span>
             )}
           </div>
-          
-          <Button 
-            variant="outline"
-            size="icon"
-            onClick={() => setShowSettings(!showSettings)} 
-            className={showSettings ? 'border-cyan-500 text-cyan-400 bg-cyan-500/10' : 'bg-darkCard border-gray-800 text-gray-400'}
-          >
-            <Settings className="w-4 h-4" />
-          </Button>
         </div>
       </header>
 
       {/* Main Content Dashboard */}
-      <div className="flex-1 flex items-center justify-center w-full relative z-10 py-6">
-        <main className="max-w-7xl w-full mx-auto px-6 grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
+      <div className="flex-1 flex items-start justify-center w-full relative z-10 py-6">
+        <main className="max-w-7xl w-full mx-auto px-4 sm:px-6 grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
         
-        {/* Settings Drawer (Conditional) */}
-        {showSettings && (
-          <Card className="col-span-12 border-cyan-500/20 bg-darkSurface/90 animate-fadeIn">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-cyan-400 flex items-center gap-2 text-sm uppercase tracking-wider font-mono">
-                <Settings className="w-4 h-4" /> Env & Integration Settings
-              </CardTitle>
-              <CardDescription className="text-xs text-gray-400 leading-relaxed max-w-2xl">
-                The frontend connects directly to the backend SSE endpoint defined below. In production, define <code className="text-cyan-300 font-mono">VITE_BACKEND_URL</code> in your Vercel deployment variables to point to your Railway service.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="flex flex-col sm:flex-row gap-3 md:items-end justify-between">
-              <div className="flex-1 min-w-[300px]">
-                <label className="block text-[10px] text-gray-500 font-mono uppercase mb-1">Backend Connection URL</label>
-                <Input 
-                  type="text" 
-                  value={BACKEND_URL} 
-                  disabled
-                  className="text-cyan-300 font-mono cursor-not-allowed border-gray-800"
-                />
-              </div>
-            </CardContent>
-          </Card>
-        )}
+
 
         {/* Column 1: Control Panel, Tickers & Gauge (LHS: 4 Columns) */}
         <section className="lg:col-span-4 space-y-6 flex flex-col">
@@ -313,7 +279,7 @@ export default function App() {
             </CardHeader>
             <CardContent className="space-y-4">
               {/* Quick Grid Ticker Selectors */}
-              <div className="grid grid-cols-4 gap-2">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                 {DEFAULT_TICKERS.map((ticker) => (
                   <Button
                     key={ticker}
@@ -333,7 +299,7 @@ export default function App() {
                   <Search className="w-3.5 h-3.5 text-gray-500 absolute left-3 top-1/2 -translate-y-1/2" />
                   <Input
                     type="text"
-                    placeholder="CUSTOM TICKER (E.G. NVDA)"
+                    placeholder="TICKER (E.G. NVDA)"
                     value={customTicker}
                     onChange={(e) => setCustomTicker(e.target.value)}
                     disabled={isRunning}
@@ -488,7 +454,7 @@ export default function App() {
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <Card className="p-4 rounded-xl">
                   <span className="block text-[10px] text-gray-500 font-mono uppercase">Current Price</span>
-                  <div className="flex items-baseline space-x-2 mt-1">
+                  <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5 mt-1">
                     <span className="text-lg font-bold font-mono text-white">${result.priceData.currentPrice}</span>
                     <span className={`text-xs font-mono flex items-center ${priceChangePercent >= 0 ? 'text-emerald-400' : 'text-rose-500'}`}>
                       {priceChangePercent >= 0 ? <TrendingUp className="w-3 h-3 mr-0.5" /> : <TrendingDown className="w-3 h-3 mr-0.5" />}
