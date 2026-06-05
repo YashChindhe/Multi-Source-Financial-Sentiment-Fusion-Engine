@@ -15,7 +15,7 @@ import {
 } from 'lucide-react';
 
 // Get Backend URL from env or fallback to local port
-const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:8080';
+const BACKEND_URL = (import.meta as any).env.VITE_BACKEND_URL || 'http://localhost:8080';
 
 interface PriceData {
   ticker: string;
@@ -390,7 +390,7 @@ export default function App() {
                   </div>
                 ) : (
                   <div className="space-y-0.5">
-                    <span className="text-3xl font-extrabold tracking-tight font-mono">
+                    <span className={`text-3xl font-extrabold tracking-tight font-mono ${getTextColorClass(score)}`}>
                       {score}%
                     </span>
                     <span className="block text-[10px] text-gray-500 font-mono tracking-widest uppercase">CONVERGENCE</span>

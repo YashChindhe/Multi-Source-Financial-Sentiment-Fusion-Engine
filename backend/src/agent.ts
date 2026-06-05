@@ -124,13 +124,13 @@ export async function runAgentLoop(
   let runId = '';
   if (langsmithClient) {
     try {
-      const run = await langsmithClient.createRun({
+      const run = await (langsmithClient as any).createRun({
         name: `Fusion Engine ReAct Loop - ${ticker}`,
         run_type: 'chain',
         inputs: { ticker },
         project_name: process.env.LANGCHAIN_PROJECT || 'financial-sentiment-fusion-engine'
       });
-      runId = run.id;
+      runId = run?.id || '';
     } catch (e) {
       console.warn('LangSmith tracing init error:', e);
     }
@@ -204,15 +204,15 @@ Generate a concise, high-impact trading report outlining:
       let llmRunId = '';
       if (langsmithClient && runId) {
         try {
-          const llmRun = await langsmithClient.createRun({
+          const llmRun = await (langsmithClient as any).createRun({
             name: 'OpenRouter Model Execution',
             run_type: 'llm',
             parent_run_id: runId,
             inputs: { prompt },
-            model: model,
+            extra: { model: model }, // Use extra field instead of model top-level to fit client schema
             project_name: process.env.LANGCHAIN_PROJECT || 'financial-sentiment-fusion-engine'
           });
-          llmRunId = llmRun.id;
+          llmRunId = llmRun?.id || '';
         } catch (e) {}
       }
 
@@ -241,7 +241,7 @@ Generate a concise, high-impact trading report outlining:
       // Update LangSmith child-run
       if (langsmithClient && llmRunId) {
         try {
-          await langsmithClient.updateRun(llmRunId, {
+          await (langsmithClient as any).updateRun(llmRunId, {
             outputs: { response: explanation }
           });
         } catch (e) {}
@@ -276,7 +276,7 @@ Generate a concise, high-impact trading report outlining:
   // Update LangSmith trace run
   if (langsmithClient && runId) {
     try {
-      await langsmithClient.updateRun(runId, {
+      await (langsmithClient as any).updateRun(runId, {
         outputs: {
           ticker,
           convergenceScore,
