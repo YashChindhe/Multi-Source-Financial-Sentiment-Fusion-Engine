@@ -178,7 +178,8 @@ export async function runAgentLoop(
   
   let explanation = '';
   const apiKey = process.env.OPENROUTER_API_KEY;
-  const model = process.env.OPENROUTER_MODEL || 'google/gemini-2.5-flash';
+  const model = process.env.LLM_MODEL || process.env.OPENROUTER_MODEL || 'google/gemini-2.5-flash';
+  const apiBase = process.env.LLM_API_BASE || 'https://openrouter.ai/api/v1';
 
   if (apiKey) {
     try {
@@ -216,7 +217,7 @@ Generate a concise, high-impact trading report outlining:
         } catch (e) {}
       }
 
-      const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+      const res = await fetch(`${apiBase}/chat/completions`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
