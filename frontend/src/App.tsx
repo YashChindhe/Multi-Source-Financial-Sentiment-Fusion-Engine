@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { 
   Play, 
-  Terminal, 
+  Terminal as TerminalIcon, 
   Settings, 
   RefreshCw, 
   ExternalLink, 
@@ -13,6 +13,9 @@ import {
   Search,
   BookOpen
 } from 'lucide-react';
+import { Card, CardHeader, CardTitle, CardContent, CardDescription } from './components/ui/card';
+import { Button } from './components/ui/button';
+import { Input } from './components/ui/input';
 
 // Get Backend URL from env or fallback to local port
 const BACKEND_URL = (import.meta as any).env.VITE_BACKEND_URL || 'http://localhost:8080';
@@ -245,10 +248,10 @@ export default function App() {
               </span>
             )}
             {backendStatus === 'offline' && (
-              <button onClick={checkHealth} className="flex items-center text-rose-500 font-semibold gap-1.5 hover:underline">
+              <Button variant="ghost" size="sm" onClick={checkHealth} className="flex items-center text-rose-500 font-semibold gap-1.5 hover:bg-transparent p-0">
                 <span className="w-2 h-2 bg-rose-500 rounded-full" />
                 OFFLINE (RETRY)
-              </button>
+              </Button>
             )}
             {backendStatus === 'checking' && (
               <span className="flex items-center text-cyan-400 font-semibold gap-1.5 animate-pulse">
@@ -258,12 +261,14 @@ export default function App() {
             )}
           </div>
           
-          <button 
+          <Button 
+            variant="outline"
+            size="icon"
             onClick={() => setShowSettings(!showSettings)} 
-            className={`p-2 rounded-lg border transition-all ${showSettings ? 'bg-cyan-500/10 border-cyan-500 text-cyan-400' : 'bg-darkCard border-gray-800 text-gray-400 hover:text-gray-200 hover:border-gray-700'}`}
+            className={showSettings ? 'border-cyan-500 text-cyan-400 bg-cyan-500/10' : 'bg-darkCard border-gray-800 text-gray-400'}
           >
             <Settings className="w-4 h-4" />
-          </button>
+          </Button>
         </div>
       </header>
 
@@ -272,87 +277,89 @@ export default function App() {
         
         {/* Settings Drawer (Conditional) */}
         {showSettings && (
-          <div className="col-span-12 glass-panel p-5 rounded-2xl border-cyan-500/20 bg-darkSurface/90 flex flex-col md:flex-row md:items-center justify-between gap-4 animate-fadeIn">
-            <div className="flex-1 space-y-2">
-              <h3 className="font-bold text-cyan-400 flex items-center gap-2 text-sm uppercase tracking-wider font-mono">
+          <Card className="col-span-12 border-cyan-500/20 bg-darkSurface/90 animate-fadeIn">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-cyan-400 flex items-center gap-2 text-sm uppercase tracking-wider font-mono">
                 <Settings className="w-4 h-4" /> Env & Integration Settings
-              </h3>
-              <p className="text-xs text-gray-400 leading-relaxed max-w-2xl">
+              </CardTitle>
+              <CardDescription className="text-xs text-gray-400 leading-relaxed max-w-2xl">
                 The frontend connects directly to the backend SSE endpoint defined below. In production, define <code className="text-cyan-300 font-mono">VITE_BACKEND_URL</code> in your Vercel deployment variables to point to your Railway service.
-              </p>
-            </div>
-            <div className="flex flex-col sm:flex-row gap-3 min-w-[300px]">
-              <div className="flex-1">
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="flex flex-col sm:flex-row gap-3 md:items-end justify-between">
+              <div className="flex-1 min-w-[300px]">
                 <label className="block text-[10px] text-gray-500 font-mono uppercase mb-1">Backend Connection URL</label>
-                <input 
+                <Input 
                   type="text" 
                   value={BACKEND_URL} 
                   disabled
-                  className="w-full text-xs bg-darkBg border border-gray-800 rounded-lg p-2.5 text-cyan-300 font-mono cursor-not-allowed"
+                  className="text-cyan-300 font-mono cursor-not-allowed border-gray-800"
                 />
               </div>
-            </div>
-          </div>
+            </CardContent>
+          </Card>
         )}
 
         {/* Column 1: Control Panel, Tickers & Gauge (LHS: 4 Columns) */}
         <section className="lg:col-span-4 space-y-6 flex flex-col">
           
           {/* Ticker Taskbar & Custom Search */}
-          <div className="glass-panel p-5 rounded-2xl flex flex-col space-y-4">
-            <h2 className="text-xs font-bold text-gray-400 font-mono tracking-wider uppercase flex items-center gap-2">
-              <Activity className="w-4 h-4 text-cyan-400" /> Ticker Taskbar
-            </h2>
-            
-            {/* Quick Grid Ticker Selectors */}
-            <div className="grid grid-cols-4 gap-2">
-              {DEFAULT_TICKERS.map((ticker) => (
-                <button
-                  key={ticker}
-                  onClick={() => handleTickerSelect(ticker)}
-                  disabled={isRunning}
-                  className={`py-2 px-1 text-center font-mono font-bold text-xs rounded-lg transition-all ${
-                    selectedTicker === ticker
-                      ? 'bg-gradient-to-r from-neonBlue to-neonPurple text-white shadow-md shadow-neonBlue/10 scale-105'
-                      : 'bg-darkCard border border-gray-800 hover:border-gray-700 text-gray-400 hover:text-gray-200'
-                  } disabled:opacity-50 disabled:cursor-not-allowed`}
-                >
-                  {ticker}
-                </button>
-              ))}
-            </div>
-
-            {/* Custom Ticker Search Form */}
-            <form onSubmit={handleCustomSearch} className="flex gap-2">
-              <div className="relative flex-1">
-                <Search className="w-3.5 h-3.5 text-gray-500 absolute left-3 top-1/2 -translate-y-1/2" />
-                <input
-                  type="text"
-                  placeholder="CUSTOM TICKER (E.G. NVDA)"
-                  value={customTicker}
-                  onChange={(e) => setCustomTicker(e.target.value)}
-                  disabled={isRunning}
-                  className="w-full pl-9 pr-3 py-2 bg-darkBg border border-gray-800 rounded-xl text-xs text-white placeholder-gray-600 focus:outline-none focus:border-cyan-500 font-mono"
-                />
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-xs font-bold text-gray-400 font-mono tracking-wider uppercase flex items-center gap-2">
+                <Activity className="w-4 h-4 text-cyan-400" /> Ticker Taskbar
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {/* Quick Grid Ticker Selectors */}
+              <div className="grid grid-cols-4 gap-2">
+                {DEFAULT_TICKERS.map((ticker) => (
+                  <Button
+                    key={ticker}
+                    variant={selectedTicker === ticker ? 'neon' : 'ticker'}
+                    size="tickerSize"
+                    onClick={() => handleTickerSelect(ticker)}
+                    disabled={isRunning}
+                  >
+                    {ticker}
+                  </Button>
+                ))}
               </div>
-              <button
-                type="submit"
-                disabled={isRunning || !customTicker.trim()}
-                className="bg-darkCard border border-gray-800 hover:border-gray-700 hover:text-cyan-400 p-2.5 rounded-xl transition-all disabled:opacity-50"
-              >
-                <Play className="w-3.5 h-3.5" />
-              </button>
-            </form>
-          </div>
+
+              {/* Custom Ticker Search Form */}
+              <form onSubmit={handleCustomSearch} className="flex gap-2">
+                <div className="relative flex-1">
+                  <Search className="w-3.5 h-3.5 text-gray-500 absolute left-3 top-1/2 -translate-y-1/2" />
+                  <Input
+                    type="text"
+                    placeholder="CUSTOM TICKER (E.G. NVDA)"
+                    value={customTicker}
+                    onChange={(e) => setCustomTicker(e.target.value)}
+                    disabled={isRunning}
+                    className="pl-9 font-mono uppercase"
+                  />
+                </div>
+                <Button
+                  type="submit"
+                  variant="outline"
+                  size="icon"
+                  disabled={isRunning || !customTicker.trim()}
+                  className="hover:text-cyan-400 border-gray-800 bg-darkCard"
+                >
+                  <Play className="w-3.5 h-3.5" />
+                </Button>
+              </form>
+            </CardContent>
+          </Card>
 
           {/* Sentiment Convergence Wheel Panel */}
-          <div className="glass-panel p-6 rounded-2xl flex flex-col items-center justify-center relative flex-1 min-h-[300px]">
+          <Card className="flex flex-col items-center justify-center relative flex-1 min-h-[300px] p-6">
             <h2 className="text-xs font-bold text-gray-400 font-mono tracking-wider uppercase absolute top-4 left-5 flex items-center gap-2">
               <Activity className="w-4.5 h-4.5 text-neonPurple" /> Convergence Wheel
             </h2>
 
             {/* Animated Ring Gauge */}
-            <div className="relative w-48 h-48 mt-4 flex items-center justify-center">
+            <div className="relative w-48 h-48 mt-6 flex items-center justify-center">
               
               {/* Spinning background dots */}
               <div className="absolute inset-0 rounded-full border border-dashed border-gray-800/80 animate-spin-slow" />
@@ -416,59 +423,61 @@ export default function App() {
             </div>
 
             {/* Run Button */}
-            <button
+            <Button
+              variant="neon"
               onClick={() => runFusionEngine(selectedTicker)}
               disabled={isRunning}
-              className="w-full mt-5 bg-gradient-to-r from-cyan-500/20 to-purple-600/20 hover:from-cyan-500/30 hover:to-purple-600/30 border border-cyan-500/30 text-cyan-300 text-xs font-mono font-bold py-3 px-4 rounded-xl transition-all flex items-center justify-center gap-2 shadow-lg shadow-purple-900/10 active:scale-95"
+              className="w-full mt-5 py-6 rounded-xl text-xs font-mono font-bold"
             >
-              <RefreshCw className={`w-3.5 h-3.5 ${isRunning ? 'animate-spin' : ''}`} />
+              <RefreshCw className={`w-3.5 h-3.5 mr-2 ${isRunning ? 'animate-spin' : ''}`} />
               {isRunning ? `PROCESSING ${selectedTicker}` : `EXECUTE FUSION RUN`}
-            </button>
-          </div>
+            </Button>
+          </Card>
         </section>
 
         {/* Column 2: Logging Terminal, Ticker Stats & News (RHS: 8 Columns) */}
         <section className="lg:col-span-8 space-y-6 flex flex-col min-h-0">
           
           {/* Live Mock-Terminal Logs */}
-          <div className="glass-panel p-5 rounded-2xl flex flex-col flex-1 min-h-[350px] max-h-[500px]">
-            <div className="flex items-center justify-between border-b border-gray-800 pb-3 mb-3">
-              <h2 className="text-xs font-bold text-gray-400 font-mono tracking-wider uppercase flex items-center gap-2">
-                <Terminal className="w-4 h-4 text-emerald-400" /> Live Asynchronous Monitor
-              </h2>
-              <div className="flex items-center space-x-1.5">
+          <Card className="flex flex-col flex-1 min-h-[350px] max-h-[500px]">
+            <CardHeader className="border-b border-gray-800 pb-3 mb-3 flex-row items-center justify-between">
+              <CardTitle className="text-xs font-bold text-gray-400 font-mono tracking-wider uppercase flex items-center gap-2">
+                <TerminalIcon className="w-4 h-4 text-emerald-400" /> Live Asynchronous Monitor
+              </CardTitle>
+              <div className="flex items-center space-x-1.5 !mt-0">
                 <span className="w-2 h-2 bg-emerald-500 rounded-full animate-ping" />
                 <span className="text-[10px] text-gray-500 font-mono">STREAMING SESSION</span>
               </div>
-            </div>
+            </CardHeader>
+            <CardContent className="flex-1 min-h-0 pb-6">
+              {/* Console Screen */}
+              <div className="h-full bg-gray-950/80 rounded-xl p-4 font-mono text-xs overflow-y-auto terminal-scroll space-y-2.5 border border-gray-900/80">
+                {logs.length === 0 ? (
+                  <div className="text-gray-600 italic h-full flex items-center justify-center">
+                    System idle. Select a ticker to initiate concurrent pipeline.
+                  </div>
+                ) : (
+                  logs.map((log) => {
+                    let textClass = 'text-gray-400';
+                    if (log.type === 'thought') textClass = 'text-purple-300 font-medium';
+                    if (log.type === 'action') textClass = 'text-cyan-300';
+                    if (log.type === 'observation') textClass = 'text-emerald-300';
+                    if (log.type === 'error') textClass = 'text-rose-400 font-bold';
+                    if (log.type === 'data') textClass = 'text-amber-300';
+                    if (log.type === 'system') textClass = 'text-cyan-400/70 italic';
 
-            {/* Console Screen */}
-            <div className="flex-1 bg-gray-950/80 rounded-xl p-4 font-mono text-xs overflow-y-auto terminal-scroll space-y-2.5 border border-gray-900/80">
-              {logs.length === 0 ? (
-                <div className="text-gray-600 italic h-full flex items-center justify-center">
-                  System idle. Select a ticker to initiate concurrent pipeline.
-                </div>
-              ) : (
-                logs.map((log) => {
-                  let textClass = 'text-gray-400';
-                  if (log.type === 'thought') textClass = 'text-purple-300 font-medium';
-                  if (log.type === 'action') textClass = 'text-cyan-300';
-                  if (log.type === 'observation') textClass = 'text-emerald-300';
-                  if (log.type === 'error') textClass = 'text-rose-400 font-bold';
-                  if (log.type === 'data') textClass = 'text-amber-300';
-                  if (log.type === 'system') textClass = 'text-cyan-400/70 italic';
-
-                  return (
-                    <div key={log.id} className="leading-relaxed border-l-2 border-gray-800 pl-2">
-                      <span className="text-[10px] text-gray-600 mr-2">[{log.timestamp}]</span>
-                      <span className={textClass}>{log.text}</span>
-                    </div>
-                  );
-                })
-              )}
-              <div ref={terminalEndRef} />
-            </div>
-          </div>
+                    return (
+                      <div key={log.id} className="leading-relaxed border-l-2 border-gray-800 pl-2">
+                        <span className="text-[10px] text-gray-600 mr-2">[{log.timestamp}]</span>
+                        <span className={textClass}>{log.text}</span>
+                      </div>
+                    );
+                  })
+                )}
+                <div ref={terminalEndRef} />
+              </div>
+            </CardContent>
+          </Card>
 
           {/* Results Summary Box */}
           {result && (
@@ -476,7 +485,7 @@ export default function App() {
               
               {/* Numerical Price Metrics Card */}
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <div className="glass-panel p-4 rounded-xl">
+                <Card className="p-4 rounded-xl">
                   <span className="block text-[10px] text-gray-500 font-mono uppercase">Current Price</span>
                   <div className="flex items-baseline space-x-2 mt-1">
                     <span className="text-lg font-bold font-mono text-white">${result.priceData.currentPrice}</span>
@@ -485,63 +494,69 @@ export default function App() {
                       {priceChangePercent.toFixed(2)}%
                     </span>
                   </div>
-                </div>
+                </Card>
 
-                <div className="glass-panel p-4 rounded-xl">
+                <Card className="p-4 rounded-xl">
                   <span className="block text-[10px] text-gray-500 font-mono uppercase">Session Open</span>
                   <span className="block text-lg font-bold font-mono text-gray-300 mt-1">${result.priceData.openPrice}</span>
-                </div>
+                </Card>
 
-                <div className="glass-panel p-4 rounded-xl">
+                <Card className="p-4 rounded-xl">
                   <span className="block text-[10px] text-gray-500 font-mono uppercase">High / Low Range</span>
                   <span className="block text-sm font-bold font-mono text-gray-300 mt-1.5">
                     ${result.priceData.lowPrice} - ${result.priceData.highPrice}
                   </span>
-                </div>
+                </Card>
 
-                <div className="glass-panel p-4 rounded-xl">
+                <Card className="p-4 rounded-xl">
                   <span className="block text-[10px] text-gray-500 font-mono uppercase">Volume</span>
                   <span className="block text-lg font-bold font-mono text-gray-300 mt-1">{result.priceData.volume.toLocaleString()}</span>
-                </div>
+                </Card>
               </div>
 
               {/* Agent Narrative Analysis */}
-              <div className="glass-panel p-5 rounded-2xl border-l-4 border-l-neonPurple">
-                <h3 className="text-xs font-bold text-purple-400 font-mono tracking-wider uppercase mb-2 flex items-center gap-2">
-                  <Database className="w-4 h-4" /> Fusion Engine Narrative Interpretation
-                </h3>
-                <p className="text-sm text-gray-300 leading-relaxed italic">
-                  "{result.explanation}"
-                </p>
-              </div>
+              <Card className="border-l-4 border-l-neonPurple">
+                <CardContent className="p-5">
+                  <h3 className="text-xs font-bold text-purple-400 font-mono tracking-wider uppercase mb-2 flex items-center gap-2">
+                    <Database className="w-4 h-4" /> Fusion Engine Narrative Interpretation
+                  </h3>
+                  <p className="text-sm text-gray-300 leading-relaxed italic">
+                    "{result.explanation}"
+                  </p>
+                </CardContent>
+              </Card>
 
               {/* News Feed Grid */}
-              <div className="glass-panel p-5 rounded-2xl space-y-4">
-                <h3 className="text-xs font-bold text-gray-400 font-mono tracking-wider uppercase flex items-center gap-2">
-                  <BookOpen className="w-4 h-4 text-cyan-400" /> Scraped Feeds (HTML/RSS Parsed)
-                </h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {result.headlines.slice(0, 6).map((item, idx) => (
-                    <a
-                      key={idx}
-                      href={item.link}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="p-3 bg-darkCard/50 border border-gray-800/50 hover:border-cyan-500/30 hover:bg-darkCard rounded-xl transition-all flex flex-col justify-between group"
-                    >
-                      <h4 className="text-xs font-medium text-gray-200 group-hover:text-white line-clamp-2 leading-relaxed">
-                        {item.title}
-                      </h4>
-                      <div className="flex items-center justify-between mt-3 text-[10px] text-gray-500 font-mono">
-                        <span>{item.source}</span>
-                        <span className="flex items-center gap-1">
-                          Source <ExternalLink className="w-2.5 h-2.5" />
-                        </span>
-                      </div>
-                    </a>
-                  ))}
-                </div>
-              </div>
+              <Card>
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-xs font-bold text-gray-400 font-mono tracking-wider uppercase flex items-center gap-2">
+                    <BookOpen className="w-4 h-4 text-cyan-400" /> Scraped Feeds (HTML/RSS Parsed)
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {result.headlines.slice(0, 6).map((item, idx) => (
+                      <a
+                        key={idx}
+                        href={item.link}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="p-3 bg-darkCard/50 border border-gray-800/50 hover:border-cyan-500/30 hover:bg-darkCard rounded-xl transition-all flex flex-col justify-between group"
+                      >
+                        <h4 className="text-xs font-medium text-gray-200 group-hover:text-white line-clamp-2 leading-relaxed">
+                          {item.title}
+                        </h4>
+                        <div className="flex items-center justify-between mt-3 text-[10px] text-gray-500 font-mono">
+                          <span>{item.source}</span>
+                          <span className="flex items-center gap-1">
+                            Source <ExternalLink className="w-2.5 h-2.5" />
+                          </span>
+                        </div>
+                      </a>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
 
             </div>
           )}
