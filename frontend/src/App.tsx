@@ -224,7 +224,7 @@ export default function App() {
       <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] rounded-full bg-neonPurple/5 blur-[120px] pointer-events-none" />
 
       {/* Header Bar */}
-      <header className="border-b border-gray-800 bg-darkSurface/60 backdrop-blur-md px-6 py-4 flex items-center justify-between sticky top-0 z-40">
+      <header className="border-b border-gray-800 bg-darkSurface/60 backdrop-blur-md px-6 py-4 flex items-center justify-between relative z-40 w-full">
         <div className="flex items-center space-x-3">
           <div className="p-2.5 bg-gradient-to-tr from-neonBlue to-neonPurple rounded-xl shadow-lg shadow-neonBlue/10 animate-pulse-glow">
             <Layers className="w-6 h-6 text-white" />
@@ -273,7 +273,8 @@ export default function App() {
       </header>
 
       {/* Main Content Dashboard */}
-      <main className="flex-1 max-w-7xl w-full mx-auto p-6 grid grid-cols-1 lg:grid-cols-12 gap-6 relative z-10">
+      <div className="flex-1 flex items-center justify-center w-full relative z-10 py-6">
+        <main className="max-w-7xl w-full mx-auto px-6 grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
         
         {/* Settings Drawer (Conditional) */}
         {showSettings && (
@@ -563,7 +564,8 @@ export default function App() {
 
         </section>
 
-      </main>
+        </main>
+      </div>
 
       {/* Footer */}
       <footer className="border-t border-gray-800/80 py-4 text-center text-[10px] text-gray-500 font-mono bg-darkSurface/30 backdrop-blur-md">
