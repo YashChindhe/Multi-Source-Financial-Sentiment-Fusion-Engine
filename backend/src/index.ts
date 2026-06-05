@@ -30,13 +30,24 @@ app.get('/health', (req, res) => {
 app.get('/api/stream', async (req, res) => {
   const ticker = (req.query.ticker as string || 'AAPL').toUpperCase().trim();
 
+  const requestOrigin = req.headers.origin;
+  let allowedOrigin = '*';
+  if (FRONTEND_URL !== '*') {
+    const origins = FRONTEND_URL.split(',');
+    if (requestOrigin && origins.includes(requestOrigin)) {
+      allowedOrigin = requestOrigin;
+    } else {
+      allowedOrigin = origins[0];
+    }
+  }
+
   // Establish SSE Header configs
   res.writeHead(200, {
     'Content-Type': 'text/event-stream',
     'Cache-Control': 'no-cache',
     'Connection': 'keep-alive',
     // Always include CORS headers in SSE requests
-    'Access-Control-Allow-Origin': FRONTEND_URL === '*' ? '*' : FRONTEND_URL
+    'Access-Control-Allow-Origin': allowedOrigin
   });
 
   // Keep-alive heartbeat to prevent timeouts
