@@ -8,10 +8,11 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 8080;
 const FRONTEND_URL = process.env.FRONTEND_URL || '*';
+const allowedOrigins = FRONTEND_URL.split(',').map(url => url.trim().replace(/\/+$/, ''));
 
 // Configure standard CORS
 app.use(cors({
-  origin: FRONTEND_URL === '*' ? '*' : FRONTEND_URL.split(','),
+  origin: FRONTEND_URL === '*' ? '*' : (allowedOrigins.length === 1 ? allowedOrigins[0] : allowedOrigins),
   methods: ['GET', 'POST'],
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
@@ -33,11 +34,11 @@ app.get('/api/stream', async (req, res) => {
   const requestOrigin = req.headers.origin;
   let allowedOrigin = '*';
   if (FRONTEND_URL !== '*') {
-    const origins = FRONTEND_URL.split(',');
-    if (requestOrigin && origins.includes(requestOrigin)) {
-      allowedOrigin = requestOrigin;
+    const normalizedOrigin = requestOrigin ? requestOrigin.trim().replace(/\/+$/, '') : '';
+    if (normalizedOrigin && allowedOrigins.includes(normalizedOrigin)) {
+      allowedOrigin = requestOrigin!;
     } else {
-      allowedOrigin = origins[0];
+      allowedOrigin = allowedOrigins[0];
     }
   }
 

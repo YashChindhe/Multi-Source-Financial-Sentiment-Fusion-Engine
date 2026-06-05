@@ -17,7 +17,7 @@ import { Button } from './components/ui/button';
 import { Input } from './components/ui/input';
 
 // Get Backend URL from env or fallback to local port
-const BACKEND_URL = (import.meta as any).env.VITE_BACKEND_URL || 'http://localhost:8080';
+const BACKEND_URL = ((import.meta as any).env.VITE_BACKEND_URL || 'http://localhost:8080').replace(/\/+$/, '');
 
 interface PriceData {
   ticker: string;
