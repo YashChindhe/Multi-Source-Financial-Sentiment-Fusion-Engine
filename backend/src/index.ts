@@ -24,7 +24,12 @@ initializeDatabase();
 
 // Health Check
 app.get('/health', (req, res) => {
-  res.status(200).json({ status: 'OK', timestamp: new Date().toISOString() });
+  res.status(200).json({ 
+    status: 'OK', 
+    timestamp: new Date().toISOString(),
+    frontendUrlConfig: FRONTEND_URL,
+    allowedOrigins: allowedOrigins
+  });
 });
 
 // SSE Streaming Endpoint for Real-time ReAct logs & calculations
